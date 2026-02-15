@@ -1,0 +1,27 @@
+name: Update Bourse Golden Cross
+
+on:
+  schedule:
+    - cron: '30 5,9,13 * * 0-4'   # شنبه تا چهارشنبه ساعت ۹:۳۰، ۱۳:۳۰، ۱۷:۳۰ به وقت تهران (UTC+3:30)
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pytse-client pandas jdatetime
+      - name: Fetch & Update Data
+        run: python fetch_bourse.py
+      - name: Commit changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add data.json index.html
+          git commit -m "Update bourse golden cross - $(date -u)" || echo "No changes"
+          git push
