@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تقاطع طلایی بورس تهران</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #eee; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #444; padding: 8px; text-align: center; }
+    th { background: #222; }
+    .positive { color: lime; }
+    .negative { color: red; }
+  </style>
+</head>
+<body>
+  <h1>نمادهای دارای تقاطع طلایی (SMA 9 & 26)</h1>
+  <p>آخرین آپدیت: <span id="time"></span> - <span id="shamsi"></span></p>
+  <table id="stocks-table">
+    <thead>
+      <tr>
+        <th>نماد</th>
+        <th>نام شرکت</th>
+        <th>گروه</th>
+        <th>بازار</th>
+        <th>آخرین قیمت</th>
+        <th>تغییر (%)</th>
+        <th>حجم</th>
+        <th>SMA 9</th>
+        <th>SMA 26</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('time').textContent = data.timestamp;
+        document.getElementById('shamsi').textContent = data.date_shamsi;
+        const tbody = document.querySelector('#stocks-table tbody');
+        tbody.innerHTML = '';
+        data.stocks.forEach(stock => {
+          const row = document.createElement('tr');
+          const changeClass = stock.price_change_percent >= 0 ? 'positive' : 'negative';
+          row.innerHTML = `
+            <td>${stock.symbol}</td>
+            <td>${stock.name}</td>
+            <td>${stock.group}</td>
+            <td>${stock.market}</td>
+            <td>${stock.last_price.toLocaleString()}</td>
+            <td class="${changeClass}">${stock.price_change_percent}%</td>
+            <td>${stock.volume.toLocaleString()}</td>
+            <td>${stock.sma9.toLocaleString()}</td>
+            <td>${stock.sma26.toLocaleString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+      .catch(err => console.error('خطا:', err));
+  </script>
+</body>
+</html>
